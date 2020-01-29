@@ -1,5 +1,6 @@
 import React from 'react';
 import {apiClient, setAuthToken} from './ApiClient';
+import {getUserWithToken} from './ApiRequests';
 
 export const AuthContext = React.createContext(undefined);
 
@@ -13,12 +14,21 @@ export default class AuthContextComponent extends React.Component {
             user: undefined,
             accessToken: undefined,
         };
+
+        this.rehydrateFromLocalStorage();
     }
 
-    rehydrateFromLocalStorage = () => {
+    rehydrateFromLocalStorage = async () => {
         const token = localStorage.getItem('accessToken');
         if(token){
-            // TODO
+            setAuthToken(token);
+            const {user, tokens} = await getUserWithToken();
+
+            this.setState({
+                accessToken: tokens.accessToken,
+                isLoggedIn: true,
+                user: user,
+            });
         }
     };
 
@@ -38,6 +48,7 @@ export default class AuthContextComponent extends React.Component {
             });
 
             setAuthToken(response.data.tokens.accessToken);
+            localStorage.setItem('accessToken', response.data.tokens.accessToken);
         } catch (e) {
             console.log(e);
             throw e;
@@ -61,6 +72,7 @@ export default class AuthContextComponent extends React.Component {
             });
 
             setAuthToken(response.data.tokens.accessToken);
+            localStorage.setItem('accessToken', response.data.tokens.accessToken);
         } catch (e) {
             console.log(e);
             throw e;

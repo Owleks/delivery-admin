@@ -11,3 +11,8 @@ export const createMenu = async (menu) => {
     const response = await apiClient.post('/menu', menu).catch(() => []); //TODO: error handling
     return response.data;
 };
+
+export const getUserWithToken = async (token) => {
+    const response = await apiClient.get('/user'); //TODO: error handling
+    return response.data;
+};

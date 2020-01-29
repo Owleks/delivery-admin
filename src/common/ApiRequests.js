@@ -16,3 +16,8 @@ export const getUserWithToken = async (token) => {
     const response = await apiClient.get('/user'); //TODO: error handling
     return response.data;
 };
+
+export const fetchOrders = async () => {
+    const response = await apiClient.get('/order'); //TODO: error handling
+    return response.data;
+}

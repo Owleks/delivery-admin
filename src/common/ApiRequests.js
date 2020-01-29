@@ -33,3 +33,13 @@ export const createMenuItem = async (item) => {
     const response = await apiClient.post('/menu-item', item); // TODO: error handling
     return response.data;
 };
+
+export const updateMenuItem = async (item) => {
+    const response = await apiClient.put(`/menu-item/${item._id}`, item); // TODO: error handling
+    return response.data;
+};
+
+export const deleteMenuItem = async (itemId) => {
+    const response = await apiClient.delete(`/menu-item/${itemId}`); // TODO: error handling
+    return response.data;
+};

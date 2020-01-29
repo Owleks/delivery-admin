@@ -34,21 +34,17 @@ export const MenuItemsPageComponent = () => {
     const {user} = useContext(AuthContext);
     const {menuId} = useParams();
     const [menuItems, setMenuItems] = useState([]);
+    const [itemToUpdate, setItemToUpdate] = useState(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreateEditMenuItemOpened, setIsCreateEditMenuItemOpened] = useState(false);
 
     const handleOnAddMenuItem = () => {
+        setItemToUpdate(undefined);
         setIsCreateEditMenuItemOpened(true);
     };
     const handleOnEditMenuItem = (item) => {
-        console.log(item);
-    };
-    const handleOnDeleteMenuItem = (item) => {
-        console.log(item);
-    };
-    const handleOnSubmit = () => {
-        fetchMenuItems();
-        setIsCreateEditMenuItemOpened(false);
+        setItemToUpdate(item);
+        setIsCreateEditMenuItemOpened(true);
     };
     const fetchMenuItems = async () => {
         setIsLoading(true);
@@ -59,7 +55,15 @@ export const MenuItemsPageComponent = () => {
         setIsLoading(false);
         setMenuItems(menuItems);
     };
-
+    const handleOnDeleteMenuItem = async (item) => {
+        // TODO: add confirmation modal
+        await Api.deleteMenuItem(item._id);
+        fetchMenuItems();
+    };
+    const handleOnSubmit = async () => {
+        fetchMenuItems();
+        setIsCreateEditMenuItemOpened(false);
+    };
     useEffect(() => {
         if (user)
             fetchMenuItems();
@@ -106,7 +110,7 @@ export const MenuItemsPageComponent = () => {
                         </Grid>
                         <Button variant="contained" color="primary" onClick={handleOnAddMenuItem}>Create item</Button>
                         <CreateEditMenuItemModal
-                            isCreate={true}
+                            itemToUpdate={itemToUpdate}
                             isOpen={isCreateEditMenuItemOpened}
                             onClose={() => setIsCreateEditMenuItemOpened(false)}
                             onSubmit={handleOnSubmit}

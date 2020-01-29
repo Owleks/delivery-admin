@@ -1,6 +1,7 @@
 import React from 'react';
 import {Router, Route} from 'react-router-dom';
 import {createBrowserHistory} from 'history';
+import {CssBaseline} from '@material-ui/core';
 
 
 import './App.css';
@@ -18,6 +19,7 @@ const history = createBrowserHistory();
 function App() {
     return (
         <div className="App">
+            <CssBaseline />
             <Router history={history}>
                 <AuthContextComponent>
                     <HeaderComponent/>

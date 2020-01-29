@@ -1,26 +1,25 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
+import {List, ListItem, ListItemText, Drawer} from '@material-ui/core';
 
 export const LeftNavComponent = () => {
+    const history = useHistory();
 
     return (
-        <>
+        <Drawer
+            open={true}
+            variant="permanent"
+        >
             <nav>
-                <ul>
-                    <li>
-                        <Link to="/menus">Menus</Link>
-                    </li>
-                    <li>
-                        <Link to="/orders">Orders</Link>
-                    </li>
-                    <li>
-                        <Link to="/login">Login</Link>
-                    </li>
-                    <li>
-                        <Link to="/signup">Signup</Link>
-                    </li>
-                </ul>
+                <List>
+                    <ListItem button>
+                        <ListItemText primary="Your Menus" onClick={() => history.push('/menus')}/>
+                    </ListItem>
+                    <ListItem button>
+                        <ListItemText primary="Your Orders" onClick={() => history.push('/Orders')}/>
+                    </ListItem>
+                </List>
             </nav>
-        </>
+        </Drawer>
     );
 };

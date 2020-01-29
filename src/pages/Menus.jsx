@@ -1,9 +1,10 @@
-import React, {useEffect, useState, useContext} from 'react';
-import {Grid, Card, Button} from '@material-ui/core';
+import React, { useEffect, useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { Grid, Card, Button, Box } from '@material-ui/core';
 
-import {AuthContext} from '../common/AuthContext';
+import { AuthContext } from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
-import {CreateMenuModal} from '../components/CreateMenuModal';
+import { CreateMenuModal } from '../components/CreateMenuModal';
 
 export const MenusPageComponent = () => {
     const {user} = useContext(AuthContext);
@@ -39,7 +40,8 @@ export const MenusPageComponent = () => {
     return (
         <Grid container={true} direction="column">
             <Grid item={true}>
-                <Button ariant="contained" color="primary" onClick={() => setIsCreateMenuOpen(true)}>Create Menu</Button>
+                <Button ariant="contained" color="primary" onClick={() => setIsCreateMenuOpen(true)}>Create
+                    Menu</Button>
             </Grid>
             <Grid item={true}>
                 <header>Your menus</header>
@@ -50,8 +52,11 @@ export const MenusPageComponent = () => {
                         item={true}
                         key={menu._id}
                     >
-                        <Card>{menu.name}</Card>
+                        <Link to={`/menus/${menu._id}`}>
+                            <Card>{menu.name}</Card>
+                        </Link>
                     </Grid>
+
                 ))}
             </Grid>}
             {showNoMenus && <div>No menus :/ </div>}

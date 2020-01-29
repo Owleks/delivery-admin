@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { Grid, Button, makeStyles, Divider } from '@material-ui/core';
+import { Box, Grid, Button, makeStyles, Divider, CircularProgress } from '@material-ui/core';
 
 import { AuthContext } from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
 import CreateEditMenuItemModal from '../components/CreateEditMenuItemModal';
 
 const useStyles = makeStyles(theme => ({
+    root: {
+        margin: theme.spacing(2, 0)
+    },
     menuItemsContainer: {
         margin: theme.spacing(2, 0),
     },
@@ -15,9 +18,9 @@ const useStyles = makeStyles(theme => ({
     },
     name: {
         display: 'flex',
-        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        flex: 1,
         padding: theme.spacing(0, 1),
     },
     control: {
@@ -31,6 +34,7 @@ export const MenuItemsPageComponent = () => {
     const {user} = useContext(AuthContext);
     const {menuId} = useParams();
     const [menuItems, setMenuItems] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [isCreateEditMenuItemOpened, setIsCreateEditMenuItemOpened] = useState(false);
 
     const handleOnAddMenuItem = () => {
@@ -47,10 +51,12 @@ export const MenuItemsPageComponent = () => {
         setIsCreateEditMenuItemOpened(false);
     };
     const fetchMenuItems = async () => {
+        setIsLoading(true);
         const menuItems = await Api.fetchMenuItems({
             restaurantId: user.restaurant,
             menuId: menuId
         });
+        setIsLoading(false);
         setMenuItems(menuItems);
     };
 
@@ -67,14 +73,18 @@ export const MenuItemsPageComponent = () => {
                     <Button
                         variant="contained"
                         className={classes.control}
-                        onClick={() => {handleOnDeleteMenuItem(item)}}
+                        onClick={() => {
+                            handleOnDeleteMenuItem(item)
+                        }}
                     >
                         Remove
                     </Button>
                     <Button
                         variant="contained"
                         className={classes.control}
-                        onClick={() => {handleOnEditMenuItem(item)}}
+                        onClick={() => {
+                            handleOnEditMenuItem(item)
+                        }}
                     >
                         Edit
                     </Button>
@@ -86,16 +96,24 @@ export const MenuItemsPageComponent = () => {
 
     return (
         <>
-            <Grid container={true} direction="column" className={classes.menuItemsContainer}>
-                {menuItemsElements}
-            </Grid>
-            <Button variant="contained" color="primary" onClick={handleOnAddMenuItem}>Create item</Button>
-            <CreateEditMenuItemModal
-                item={true}
-                isOpen={isCreateEditMenuItemOpened}
-                onClose={() => setIsCreateEditMenuItemOpened(false)}
-                onSubmit={handleOnSubmit}
-            />
+            <Box className={classes.root}>
+                {isLoading && (<Box><CircularProgress /></Box>)}
+                {!isLoading && (
+                    <>
+                        <Grid container={true} direction="column" className={classes.menuItemsContainer}>
+                            <Grid item><Divider /></Grid>
+                            {menuItemsElements}
+                        </Grid>
+                        <Button variant="contained" color="primary" onClick={handleOnAddMenuItem}>Create item</Button>
+                        <CreateEditMenuItemModal
+                            isCreate={true}
+                            isOpen={isCreateEditMenuItemOpened}
+                            onClose={() => setIsCreateEditMenuItemOpened(false)}
+                            onSubmit={handleOnSubmit}
+                        />
+                    </>
+                )}
+            </Box>
         </>
     );
 };

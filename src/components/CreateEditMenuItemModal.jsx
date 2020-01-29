@@ -19,7 +19,6 @@ const useStyles = makeStyles({
 });
 
 const CreateEditMenuItemModal = (props) => {
-
     const classes = useStyles();
     const {isCreate, isOpen, onClose, onSubmit} = props;
     const {menuId} = useParams();
@@ -28,15 +27,24 @@ const CreateEditMenuItemModal = (props) => {
     const [description, setDescription] = useState('');
     const [inProgress, setInProgress] = useState(false);
 
+    const clearFields = () => {
+        setName('');
+        setPrice('');
+        setDescription('');
+    };
     const handleSubmit = async () => {
         setInProgress(true);
         if (!name || !price || !description) // TODO: show error
             return;
         await Api.createMenuItem({menuId, name, price, description});
         setInProgress(false);
+        clearFields();
         onSubmit();
     };
-
+    const handleOnClose = () => {
+        clearFields();
+        onClose();
+    };
     const handleNameChange = ({target: {value: name}}) => {
         setName(name);
     };
@@ -46,10 +54,9 @@ const CreateEditMenuItemModal = (props) => {
     const handleDescriptionChange = ({target: {value: description}}) => {
         setDescription(description);
     };
-
     return (
         <>
-            <Dialog open={isOpen} onClose={onClose}>
+            <Dialog open={isOpen} onClose={handleOnClose}>
                 <DialogTitle>{isCreate ? "Create" : "Edit"} menu item</DialogTitle>
                 <DialogContent>
                     <TextField

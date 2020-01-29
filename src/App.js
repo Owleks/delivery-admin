@@ -11,6 +11,7 @@ import {LoginPageComponent} from './pages/Login';
 import {SignupPageComponent} from './pages/Signup';
 import {HeaderComponent} from './components/Header';
 import AuthContextComponent from './common/AuthContext';
+import {MenuItemsPageComponent} from './pages/MenuItems';
 
 const history = createBrowserHistory();
 
@@ -21,10 +22,10 @@ function App() {
                 <AuthContextComponent>
                     <HeaderComponent/>
                     <LeftNavComponent/>
-                    <Route path="/menus">
+                    <Route exact path="/menus">
                         <MenusPageComponent/>
                     </Route>
-                    <Route path="/orders">
+                    <Route exact path="/orders">
                         <OrdersPageComponent/>
                     </Route>
                     <Route path="/login">
@@ -32,6 +33,9 @@ function App() {
                     </Route>
                     <Route path="/signup">
                         <SignupPageComponent/>
+                    </Route>
+                    <Route path="/menus/:menuId">
+                        <MenuItemsPageComponent/>
                     </Route>
                 </AuthContextComponent>
             </Router>

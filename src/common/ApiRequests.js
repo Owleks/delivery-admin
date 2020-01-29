@@ -22,6 +22,13 @@ export const fetchOrders = async () => {
     return response.data;
 };
 
+export const fetchMenuItems = async (params) => {
+    const response = await apiClient.get('/menu-item', {
+        params: params
+    }); // TODO: error handling
+    return response.data;
+};
+
 export const createMenuItem = async (item) => {
     const response = await apiClient.post('/menu-item', item); // TODO: error handling
     return response.data;

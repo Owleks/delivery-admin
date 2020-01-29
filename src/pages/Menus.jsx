@@ -61,6 +61,9 @@ export const MenusPageComponent = () => {
             </Grid>}
             {showNoMenus && <div>No menus :/ </div>}
             {showLoading && <div>Loading.....</div>}
+            <Grid item={true}>
+                <Button variant="contained" color="primary" onClick={() => setIsCreateMenuOpen(true)}>Create Menu</Button>
+            </Grid>
             <CreateMenuModal
                 isOpen={isCreateMenuOpen}
                 onClose={() => setIsCreateMenuOpen(false)}

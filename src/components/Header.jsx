@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {Link, useHistory} from 'react-router-dom';
-import {Grid, Button} from '@material-ui/core';
+import {Grid, Button, AppBar, Toolbar} from '@material-ui/core';
 
 import {AuthContext} from '../common/AuthContext';
 
@@ -21,17 +21,21 @@ export const HeaderComponent = () => {
     };
 
     return (
-        <Grid container direction="row" justify="flex-end">
-            <Grid item>
-                {!user && <>
-                    <Button variant="contained" color="primary" onClick={login}>Login</Button>
-                    <Button variant="contained" color="primary" onClick={signup}>Signup</Button>
-                </>}
+        <AppBar position="static">
+            <Toolbar>
+                <Grid container direction="row" justify="flex-end">
+                    <Grid item>
+                        {!user && <>
+                            <Button variant="contained" color="primary" onClick={login}>Login</Button>
+                            <Button variant="contained" color="primary" onClick={signup}>Signup</Button>
+                        </>}
 
-                {user && <>
-                    <Button variant="contained" color="primary" onClick={logout}>Logout</Button>
-                </>}
-            </Grid>
-        </Grid>
+                        {user && <>
+                            <Button variant="contained" color="primary" onClick={logout}>Logout</Button>
+                        </>}
+                    </Grid>
+                </Grid>
+            </Toolbar>
+        </AppBar>
     );
 };

@@ -20,4 +20,9 @@ export const getUserWithToken = async (token) => {
 export const fetchOrders = async () => {
     const response = await apiClient.get('/order'); //TODO: error handling
     return response.data;
-}
+};
+
+export const createMenuItem = async (item) => {
+    const response = await apiClient.post('/menu-item', item); // TODO: error handling
+    return response.data;
+};

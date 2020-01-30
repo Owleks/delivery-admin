@@ -55,10 +55,11 @@ export const MenuItemsPageComponent = () => {
         setIsLoading(false);
         setMenuItems(menuItems);
     };
-    const handleOnDeleteMenuItem = async (item) => {
+    const handleOnDeleteMenuItem = async (itemToDelete) => {
         // TODO: add confirmation modal
-        await Api.deleteMenuItem(item._id);
-        fetchMenuItems();
+        await Api.deleteMenuItem(itemToDelete._id);
+        const newMenuItems = menuItems.filter(item => item._id !== itemToDelete._id);
+        setMenuItems([...newMenuItems]);
     };
     const handleOnSubmit = async () => {
         fetchMenuItems();

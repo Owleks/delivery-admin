@@ -22,7 +22,7 @@ export const MenusPageComponent = () => {
     const onMenuCreated = () => {
         fetchMenus();
         setIsCreateMenuOpen(false);
-    }
+    };
 
     useEffect(() => {
         if (user)

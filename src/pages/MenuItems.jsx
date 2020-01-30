@@ -5,6 +5,7 @@ import { Box, Grid, Button, makeStyles, Divider, CircularProgress } from '@mater
 import { AuthContext } from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
 import CreateEditMenuItemModal from '../components/CreateEditMenuItemModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -34,9 +35,12 @@ export const MenuItemsPageComponent = () => {
   const { user } = useContext(AuthContext);
   const { menuId } = useParams();
   const [menuItems, setMenuItems] = useState([]);
-  const [itemToUpdate, setItemToUpdate] = useState(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateEditMenuItemOpened, setIsCreateEditMenuItemOpened] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [itemToUpdate, setItemToUpdate] = useState(undefined);
+  const [itemToDelete, setItemToDelete] = useState(undefined);
+  const [deleteMessage, setDeleteMessage] = useState('');
 
   const handleOnAddMenuItem = () => {
     setItemToUpdate(undefined);
@@ -52,12 +56,19 @@ export const MenuItemsPageComponent = () => {
     setIsLoading(false);
     setMenuItems(menuItems);
   };
-  const handleOnDeleteMenuItem = async (itemToDelete) => {
-    // TODO: add confirmation modal
+  const handleOnDeleteMenuItem =  (itemToDelete) => {
+    setItemToDelete(itemToDelete);
+    setIsConfirmationModalOpen(true);
+    setDeleteMessage(`Are you sure you want to delete ${itemToDelete.name}?`);
+  };
+
+  const handleOnAcceptDeleteMenuItem = async () => {
     await Api.deleteMenuItem(itemToDelete._id);
     const newMenuItems = menuItems.filter(item => item._id !== itemToDelete._id);
     setMenuItems([...newMenuItems]);
+    setIsConfirmationModalOpen(false);
   };
+
   const handleOnSubmit = async () => {
     fetchMenuItems();
     setIsCreateEditMenuItemOpened(false);
@@ -113,6 +124,14 @@ export const MenuItemsPageComponent = () => {
               isOpen={isCreateEditMenuItemOpened}
               onClose={() => setIsCreateEditMenuItemOpened(false)}
               onSubmit={handleOnSubmit}
+            />
+            <ConfirmationModal
+              isOpen={isConfirmationModalOpen}
+              onClose={() => setIsConfirmationModalOpen(false)}
+              onAccept={handleOnAcceptDeleteMenuItem}
+              onReject={() => setIsConfirmationModalOpen(false)}
+              title={'Delete menu item'}
+              message={deleteMessage}
             />
           </>
         )}

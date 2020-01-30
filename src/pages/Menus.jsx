@@ -5,6 +5,7 @@ import { Grid, Button, Divider, makeStyles } from '@material-ui/core';
 import { AuthContext } from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
 import { CreateEditMenuModal } from '../components/CreateEditMenuModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,7 +34,10 @@ export const MenusPageComponent = () => {
   const [menus, setMenus] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [menuToUpdate, setMenuToUpdate] = useState(undefined);
+  const [menuToDelete, setMenuToDelete] = useState(undefined);
+  const [deleteMessage, setDeleteMessage] = useState('');
   const classes = useStyles();
 
   const fetchMenus = async () => {
@@ -54,9 +58,16 @@ export const MenusPageComponent = () => {
     setMenuToUpdate(menu);
     setIsCreateMenuOpen(true);
   };
-  const handleOnDeleteMenu = async (menuToDelete) => {
-    const newMenus = menus.filter(menu => menu._id !== menuToDelete._id);
+  const handleOnDeleteMenu = (menuToDelete) => {
+    setMenuToDelete(menuToDelete);
+    setIsConfirmationModalOpen(true);
+    setDeleteMessage(`Are you sure you want to delete ${menuToDelete.name}?`);
+  };
+
+  const handleOnAcceptDeleteMenu = async () => {
     await Api.deleteMenu(menuToDelete._id);
+    const newMenus = menus.filter(menu => menu._id !== menuToDelete._id);
+    setIsConfirmationModalOpen(false);
     setMenus([...newMenus]);
   };
 
@@ -112,6 +123,14 @@ export const MenusPageComponent = () => {
         onClose={() => setIsCreateMenuOpen(false)}
         onSubmit={handleOnSubmit}
         menuToUpdate={menuToUpdate}
+      />
+      <ConfirmationModal
+        isOpen={isConfirmationModalOpen}
+        onClose={() => setIsConfirmationModalOpen(false)}
+        onAccept={handleOnAcceptDeleteMenu}
+        onReject={() => setIsConfirmationModalOpen(false)}
+        title={'Delete menu'}
+        message={deleteMessage}
       />
     </Grid>
   );

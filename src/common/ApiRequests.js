@@ -32,6 +32,21 @@ export const fetchOrders = async () => {
   return response.data;
 };
 
+export const confirmOrder = async (orderId) => {
+  const response = await apiClient.put(`/order/${orderId}`, {isConfirmed: true}); //TODO: error handling
+  return response.data;
+};
+
+export const deleteOrder = async (orderId) => {
+  const response = await apiClient.delete(`/order/${orderId}`); //TODO: error handling
+  return response.data;
+};
+
+export const fetchRestaurantMenuItems = async (restaurantId) => {
+  const response = await apiClient.get('/menu-item', { params: { restaurantId } }); // TODO: error handling
+  return response.data;
+};
+
 export const fetchMenuItems = async (menuId) => {
   const response = await apiClient.get('/menu-item', {
     params: { menuId },

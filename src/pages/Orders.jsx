@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, Button, CircularProgress, Divider, makeStyles } from '@material-ui/core';
+import React, { useContext, useEffect, useState } from 'react';
+import { Grid, CircularProgress, Divider, makeStyles } from '@material-ui/core';
 
 import * as Api from '../common/ApiRequests';
+import { AuthContext } from '../common/AuthContext';
+import OrderCategory from './OrderCategory';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
+  header: {
+    height: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   order: {
     height: 100,
     '& div': {
@@ -12,34 +20,81 @@ const useStyles = makeStyles(theme => ({
       textOverflow: 'ellipsis',
     },
   },
-}));
+});
 
 export const OrdersPageComponent = () => {
+  const { user } = useContext(AuthContext);
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false);
-  const [orders, setOrders] = useState([]);
-
-  const fetchOrders = async () => {
-    setIsLoading(true);
-    const orders = await Api.fetchOrders();
-    setOrders(orders);
-    setIsLoading(false);
-  };
+  const [activeOrders, setActiveOrders] = useState([]);
+  const [confirmedOrders, setConfirmedOrders] = useState([]);
+  const [deletedOrders, setDeletedOrders] = useState([]);
 
   const formatDate = (date) => {
     const newDate = new Date(date);
     return `${newDate.toLocaleDateString()} ${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}`;
   };
+  const transformOrders = (orders, menuItems) => (
+    orders.map(order => {
+      order.totalPrice = 0;
+      order.items.forEach(item => {
+        order.totalPrice += menuItems[item.menuItemId].price;
+      });
+      order.created = formatDate(order.dateCreated);
+      return order;
+    })
+  );
+  const fetchAndPrepareOrdersData = async () => {
+    setIsLoading(true);
+    const orders = await Api.fetchOrders();
+    const menuItems = await Api.fetchRestaurantMenuItems(user.restaurant);
+    const menuItemsAsObject = menuItems.reduce((prev, current) => {
+      return {
+        ...prev,
+        [current._id]: current,
+      };
+    }, {});
+    const transformedOrders = transformOrders(orders, menuItemsAsObject);
+    const active = transformedOrders.filter(order => !order.isConfirmed);
+    const confirmed = transformedOrders.filter(order => order.isConfirmed && !order.removed);
+    const deleted = transformedOrders.filter(order => order.removed);
+    setActiveOrders(active);
+    setConfirmedOrders(confirmed);
+    setDeletedOrders(deleted);
+    setIsLoading(false);
+  };
+  const confirmOrder = async (orderToConfirm) => {
+    // TODO: add confirmation modal
+    await Api.confirmOrder(orderToConfirm._id);
+    const newActiveOrders = activeOrders.filter(order => order._id !== orderToConfirm._id);
+    setActiveOrders(newActiveOrders);
+    setConfirmedOrders([
+      ...confirmedOrders,
+      orderToConfirm
+    ]);
+  };
+  const deleteOrder = async (orderToDelete) => {
+    // TODO: add confirmation modal
+    await Api.deleteOrder(orderToDelete._id);
+    const newConfirmedOrders = confirmedOrders.filter(order => order._id !== orderToDelete._id);
+    setConfirmedOrders(newConfirmedOrders);
+    setDeletedOrders([
+      ...deletedOrders,
+      orderToDelete
+    ]);
+  };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (user) {
+      fetchAndPrepareOrdersData();
+    }
+  }, [user]);
 
   if (isLoading) {
     return (<CircularProgress />);
   }
 
-  if (!isLoading && !orders.length) {
+  if (!isLoading && !activeOrders.length && !confirmedOrders.length && !deletedOrders.length) {
     return (<div>No orders yet</div>);
   }
 
@@ -57,26 +112,9 @@ export const OrdersPageComponent = () => {
         <Grid item xs={2}>Controls</Grid>
       </Grid>
       <Divider />
-      {orders.length && orders.map(order => (
-        <Grid item key={order._id}>
-          <Grid container item className={classes.order} alignItems="center" justify="center">
-            <Grid item xs={2}>{order.customerName}</Grid>
-            <Grid item xs={1}>{order.phoneNumber}</Grid>
-            <Grid item xs={2}>{order.address}</Grid>
-            <Grid item xs={1}>{formatDate(order.dateCreated)}</Grid>
-            <Grid item xs={1}>{order.deliveryTime}</Grid>
-            <Grid item xs={1}>{order.description}</Grid>
-            <Grid item xs={1}>{order.items.length}</Grid>
-            <Grid item xs={1}>228$</Grid>
-            <Grid item xs={2}>
-              <Button variant="contained" color="primary" onClick={() => alert('TODO')}>Confirm</Button>
-              <Button disabled={!order.isConfirmed} variant="contained" color="primary"
-                      onClick={() => alert('TODO')}>Remove</Button>
-            </Grid>
-          </Grid>
-          <Divider />
-        </Grid>
-      ))}
+      <OrderCategory orders={activeOrders} category='active' onConfirm={confirmOrder} onDelete={deleteOrder} />
+      <OrderCategory orders={confirmedOrders} category='confirmed' onConfirm={confirmOrder} onDelete={deleteOrder} />
+      <OrderCategory orders={deletedOrders} category='deleted' onConfirm={confirmOrder} onDelete={deleteOrder} />
     </Grid>
   );
 };

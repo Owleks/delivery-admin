@@ -55,12 +55,13 @@ export default class AuthContextComponent extends React.Component {
         }
     };
 
-    signup = async (restaurant, login, password) => {
+    signup = async (restaurantDomain, restaurantName, login, password) => {
         try {
             const response = await apiClient.post(
                 '/user',
                 {
-                    restaurantName: restaurant,
+                    restaurantName,
+                    restaurantDomain,
                     login,
                     password,
                 });

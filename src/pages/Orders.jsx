@@ -39,7 +39,8 @@ export const OrdersPageComponent = () => {
         const { price } = menuItems[item.menuItemId];
         order.totalPrice += price;
       });
-      order.dateToDisplay = formatDate(order.dateCreated);
+      order.created = formatDate(order.dateCreated);
+      order.updated = formatDate(order.dateUpdated);
       return order;
     })
   );
@@ -51,26 +52,6 @@ export const OrdersPageComponent = () => {
     setOrders(transformedOrders);
     setIsLoading(false);
   };
-  /*const confirmOrder = async (orderToConfirm) => {
-    // TODO: add confirmation modal
-    await Api.confirmOrder(orderToConfirm._id);
-    const newActiveOrders = activeOrders.filter(order => order._id !== orderToConfirm._id);
-    setActiveOrders(newActiveOrders);
-    setConfirmedOrders([
-      ...confirmedOrders,
-      orderToConfirm,
-    ]);
-  };
-  const deleteOrder = async (orderToDelete) => {
-    // TODO: add confirmation modal
-    await Api.deleteOrder(orderToDelete._id);
-    const newConfirmedOrders = confirmedOrders.filter(order => order._id !== orderToDelete._id);
-    setConfirmedOrders(newConfirmedOrders);
-    setDeletedOrders([
-      ...deletedOrders,
-      orderToDelete,
-    ]);
-  };*/
 
   useEffect(() => {
     if (user) {
@@ -86,18 +67,18 @@ export const OrdersPageComponent = () => {
     return (<div>No orders yet</div>);
   }
 
-  const activeOrders = orders.filter(order => !order.isConfirmed);
-  const confirmedOrders = orders.filter(order => order.isConfirmed && !order.removed);
-  const deletedOrders = orders.filter(order => order.removed);
-
+  const openOrders = orders.filter(order => order.status === 'open');
+  const confirmedOrders = orders.filter(order => order.status === 'confirmed');
+  const removedOrders = orders.filter(order => order.status === 'removed');
 
   return (
     <Grid container={true} direction="column">
       <Grid container className={classes.order} alignItems="center" justify="center">
-        <Grid item xs={2}>Customer name</Grid>
+        <Grid item xs={1}>Customer name</Grid>
         <Grid item xs={1}>Phone number</Grid>
         <Grid item xs={2}>Address</Grid>
         <Grid item xs={1}>Created</Grid>
+        <Grid item xs={1}>Updated</Grid>
         <Grid item xs={1}>Delivery time</Grid>
         <Grid item xs={1}>Description</Grid>
         <Grid item xs={1}>Items</Grid>
@@ -105,9 +86,9 @@ export const OrdersPageComponent = () => {
         <Grid item xs={2}> </Grid>
       </Grid>
       <Divider />
-      <OrderCategory orders={activeOrders} category='active' />
+      <OrderCategory orders={openOrders} category='open' />
       <OrderCategory orders={confirmedOrders} category='confirmed' />
-      <OrderCategory orders={deletedOrders} category='deleted' />
+      <OrderCategory orders={removedOrders} category='removed' />
     </Grid>
   );
 };

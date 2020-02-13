@@ -26,9 +26,7 @@ export const OrdersPageComponent = () => {
   const { user } = useContext(AuthContext);
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeOrders, setActiveOrders] = useState([]);
-  const [confirmedOrders, setConfirmedOrders] = useState([]);
-  const [deletedOrders, setDeletedOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
 
   const formatDate = (date) => {
     const newDate = new Date(date);
@@ -50,15 +48,10 @@ export const OrdersPageComponent = () => {
     const orders = await Api.fetchOrders();
     const menuItems = await Api.fetchRestaurantMenuItems(user.restaurant);
     const transformedOrders = transformOrders(orders, menuItems);
-    const active = transformedOrders.filter(order => !order.isConfirmed);
-    const confirmed = transformedOrders.filter(order => order.isConfirmed && !order.removed);
-    const deleted = transformedOrders.filter(order => order.removed);
-    setActiveOrders(active);
-    setConfirmedOrders(confirmed);
-    setDeletedOrders(deleted);
+    setOrders(transformedOrders);
     setIsLoading(false);
   };
-  const confirmOrder = async (orderToConfirm) => {
+  /*const confirmOrder = async (orderToConfirm) => {
     // TODO: add confirmation modal
     await Api.confirmOrder(orderToConfirm._id);
     const newActiveOrders = activeOrders.filter(order => order._id !== orderToConfirm._id);
@@ -77,7 +70,7 @@ export const OrdersPageComponent = () => {
       ...deletedOrders,
       orderToDelete,
     ]);
-  };
+  };*/
 
   useEffect(() => {
     if (user) {
@@ -89,9 +82,14 @@ export const OrdersPageComponent = () => {
     return (<CircularProgress />);
   }
 
-  if (!isLoading && !activeOrders.length && !confirmedOrders.length && !deletedOrders.length) {
+  if (!isLoading && !orders.length) {
     return (<div>No orders yet</div>);
   }
+
+  const activeOrders = orders.filter(order => !order.isConfirmed);
+  const confirmedOrders = orders.filter(order => order.isConfirmed && !order.removed);
+  const deletedOrders = orders.filter(order => order.removed);
+
 
   return (
     <Grid container={true} direction="column">
@@ -104,12 +102,12 @@ export const OrdersPageComponent = () => {
         <Grid item xs={1}>Description</Grid>
         <Grid item xs={1}>Items</Grid>
         <Grid item xs={1}>Total</Grid>
-        <Grid item xs={2}>Controls</Grid>
+        <Grid item xs={2}> </Grid>
       </Grid>
       <Divider />
-      <OrderCategory orders={activeOrders} category='active' onConfirm={confirmOrder} onDelete={deleteOrder} />
-      <OrderCategory orders={confirmedOrders} category='confirmed' onConfirm={confirmOrder} onDelete={deleteOrder} />
-      <OrderCategory orders={deletedOrders} category='deleted' onConfirm={confirmOrder} onDelete={deleteOrder} />
+      <OrderCategory orders={activeOrders} category='active' />
+      <OrderCategory orders={confirmedOrders} category='confirmed' />
+      <OrderCategory orders={deletedOrders} category='deleted' />
     </Grid>
   );
 };

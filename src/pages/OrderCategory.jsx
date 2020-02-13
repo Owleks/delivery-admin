@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Card, Divider, Grid, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles({
@@ -21,12 +22,12 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50
-  }
+    height: 50,
+  },
 });
 
 const OrderCategory = (props) => {
-  const {orders, category, onConfirm, onDelete} = props;
+  const { orders, category } = props;
   const classes = useStyles();
 
   return (
@@ -51,13 +52,16 @@ const OrderCategory = (props) => {
             <Grid item xs={1}>{order.items.length}</Grid>
             <Grid item xs={1}>{order.totalPrice}$</Grid>
             <Grid item xs={2}>
+              <Button variant="contained" color="primary" component={Link} to={`/orders/${order._id}`}>Preview</Button>
+            </Grid>
+            {/*<Grid item xs={2}>
               {category === 'active' && (
                 <Button variant="contained" color="primary" onClick={() => onConfirm(order)}>Confirm</Button>
               )}
               {category === 'confirmed' && (
                 <Button variant="contained" color="primary" onClick={() => onDelete(order)}>Remove</Button>
               )}
-            </Grid>
+            </Grid>*/}
           </Grid>
           <Divider />
         </Grid>

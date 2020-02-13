@@ -44,7 +44,10 @@ export const deleteOrder = async (orderId) => {
 
 export const fetchRestaurantMenuItems = async (restaurantId) => {
   const response = await apiClient.get('/menu-item', { params: { restaurantId } }); // TODO: error handling
-  return response.data;
+  return response.data.reduce((prev, current) => ({
+    ...prev,
+    [current._id]: current,
+  }), {});
 };
 
 export const fetchMenuItems = async (menuId) => {

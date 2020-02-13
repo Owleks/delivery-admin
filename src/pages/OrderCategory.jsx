@@ -45,7 +45,7 @@ const OrderCategory = (props) => {
             <Grid item xs={2}>{order.customerName}</Grid>
             <Grid item xs={1}>{order.phoneNumber}</Grid>
             <Grid item xs={2}>{order.address}</Grid>
-            <Grid item xs={1}>{order.created}</Grid>
+            <Grid item xs={1}>{order.dateToDisplay}</Grid>
             <Grid item xs={1}>{order.deliveryTime}</Grid>
             <Grid item xs={1}>{order.description}</Grid>
             <Grid item xs={1}>{order.items.length}</Grid>

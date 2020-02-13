@@ -38,23 +38,18 @@ export const OrdersPageComponent = () => {
     orders.map(order => {
       order.totalPrice = 0;
       order.items.forEach(item => {
-        order.totalPrice += menuItems[item.menuItemId].price;
+        const { price } = menuItems[item.menuItemId];
+        order.totalPrice += price;
       });
-      order.created = formatDate(order.dateCreated);
+      order.dateToDisplay = formatDate(order.dateCreated);
       return order;
     })
   );
-  const fetchAndPrepareOrdersData = async () => {
+  const fetchAndPrepareOrders = async () => {
     setIsLoading(true);
     const orders = await Api.fetchOrders();
     const menuItems = await Api.fetchRestaurantMenuItems(user.restaurant);
-    const menuItemsAsObject = menuItems.reduce((prev, current) => {
-      return {
-        ...prev,
-        [current._id]: current,
-      };
-    }, {});
-    const transformedOrders = transformOrders(orders, menuItemsAsObject);
+    const transformedOrders = transformOrders(orders, menuItems);
     const active = transformedOrders.filter(order => !order.isConfirmed);
     const confirmed = transformedOrders.filter(order => order.isConfirmed && !order.removed);
     const deleted = transformedOrders.filter(order => order.removed);
@@ -70,7 +65,7 @@ export const OrdersPageComponent = () => {
     setActiveOrders(newActiveOrders);
     setConfirmedOrders([
       ...confirmedOrders,
-      orderToConfirm
+      orderToConfirm,
     ]);
   };
   const deleteOrder = async (orderToDelete) => {
@@ -80,13 +75,13 @@ export const OrdersPageComponent = () => {
     setConfirmedOrders(newConfirmedOrders);
     setDeletedOrders([
       ...deletedOrders,
-      orderToDelete
+      orderToDelete,
     ]);
   };
 
   useEffect(() => {
     if (user) {
-      fetchAndPrepareOrdersData();
+      fetchAndPrepareOrders();
     }
   }, [user]);
 

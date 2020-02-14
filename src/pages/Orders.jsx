@@ -53,7 +53,7 @@ export const OrdersPageComponent = () => {
 
   const openOrders = orders.filter(order => order.status === 'open');
   const confirmedOrders = orders.filter(order => order.status === 'confirmed');
-  const removedOrders = orders.filter(order => order.status === 'removed');
+  const archivedOrders = orders.filter(order => order.status === 'archived');
 
   return (
     <Grid container={true} direction="column">
@@ -72,7 +72,7 @@ export const OrdersPageComponent = () => {
       <Divider />
       <OrderCategory orders={openOrders} category='open' />
       <OrderCategory orders={confirmedOrders} category='confirmed' />
-      <OrderCategory orders={removedOrders} category='removed' />
+      <OrderCategory orders={archivedOrders} category='archived' />
     </Grid>
   );
 };

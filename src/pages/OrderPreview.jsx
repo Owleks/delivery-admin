@@ -92,19 +92,19 @@ export const OrderPreviewComponent = () => {
     return <>Order not found</>;
   }
 
-  const controls = (
+  const controls = ( // TODO: change to back button, set state input and save button
     <>
       <Box className={classes.controls}>
         <Button variant="contained" onClick={() => goBack()}>Back</Button>
         {order.status === 'open' && <>
-          <Button variant="contained" onClick={() => changeOrderStatus('removed')}>Remove order</Button>
+          <Button variant="contained" onClick={() => changeOrderStatus('archived')}>Archive order</Button>
           <Button variant="contained" onClick={() => changeOrderStatus('confirmed')} color="primary">Confirm order</Button>
         </>}
         {order.status === 'confirmed' && <>
           <Button variant="contained" onClick={() => changeOrderStatus('open')}>Re-open order</Button>
-          <Button variant="contained" onClick={() => changeOrderStatus('removed')} color="primary">Remove order</Button>
+          <Button variant="contained" onClick={() => changeOrderStatus('archived')} color="primary">Archive order</Button>
         </>}
-        {order.status === 'removed' && <>
+        {order.status === 'archived' && <>
           <Button variant="contained" onClick={() => changeOrderStatus('open')} color="primary">Re-open order</Button>
         </>}
       </Box>

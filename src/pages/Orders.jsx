@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Grid, CircularProgress, Divider, makeStyles } from '@material-ui/core';
-
-import * as Api from '../common/ApiRequests';
 import { AuthContext } from '../common/AuthContext';
+import * as Api from '../common/ApiRequests';
+import * as Helpers from '../common/Helpers';
 import OrderCategory from './OrderCategory';
 
 const useStyles = makeStyles({
@@ -28,27 +28,11 @@ export const OrdersPageComponent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [orders, setOrders] = useState([]);
 
-  const formatDate = (date) => {
-    const newDate = new Date(date);
-    return `${newDate.toLocaleDateString()} ${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}`;
-  };
-  const transformOrders = (orders, menuItems) => (
-    orders.map(order => {
-      order.totalPrice = 0;
-      order.items.forEach(item => {
-        const { price } = menuItems[item.menuItemId];
-        order.totalPrice += price;
-      });
-      order.created = formatDate(order.dateCreated);
-      order.updated = formatDate(order.dateUpdated);
-      return order;
-    })
-  );
   const fetchAndPrepareOrders = async () => {
     setIsLoading(true);
     const orders = await Api.fetchOrders();
     const menuItems = await Api.fetchRestaurantMenuItems(user.restaurant);
-    const transformedOrders = transformOrders(orders, menuItems);
+    const transformedOrders = orders.map(order => Helpers.fillOrderData(order, menuItems));
     setOrders(transformedOrders);
     setIsLoading(false);
   };

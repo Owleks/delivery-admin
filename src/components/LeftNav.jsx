@@ -18,6 +18,9 @@ export const LeftNavComponent = () => {
           <ListItem button>
             <ListItemText primary="Your Orders" onClick={() => history.push('/orders')} />
           </ListItem>
+          <ListItem button>
+            <ListItemText primary="Profile settings" onClick={() => history.push('/profile-settings')} />
+          </ListItem>
         </List>
       </nav>
     </Drawer>

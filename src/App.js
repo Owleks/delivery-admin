@@ -6,6 +6,7 @@ import { CssBaseline, makeStyles } from '@material-ui/core';
 import './App.css';
 import { LeftNavComponent } from './components/LeftNav';
 import { OrdersPageComponent } from './pages/Orders';
+import { ProfileSettings } from './pages/ProfileSettings';
 import { MenusPageComponent } from './pages/Menus';
 import { LoginPageComponent } from './pages/Login';
 import { SignupPageComponent } from './pages/Signup';
@@ -48,6 +49,9 @@ function App() {
             </Route>
             <Route path="/menus/:menuId">
               <MenuItemsPageComponent />
+            </Route>
+            <Route path="/profile-settings">
+              <ProfileSettings />
             </Route>
           </div>
         </AuthContextComponent>

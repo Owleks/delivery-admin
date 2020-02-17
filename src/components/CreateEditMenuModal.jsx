@@ -19,9 +19,11 @@ export const CreateEditMenuModal = memo((props) => {
     menuForm.append('img', menuImg[0]);
     setInProgress(true);
     if (!menuToUpdate) {
+      //todo: OLO: api logic should be in services?
       await Api.createMenu(menuForm);
     } else {
       menuForm.append('_id', menuToUpdate._id);
+      //todo: OLO: api logic should be in services?
       await Api.updateMenu(menuForm);
     }
     setInProgress(false);

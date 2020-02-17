@@ -1,16 +1,25 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { List, ListItem, ListItemText, Drawer } from '@material-ui/core';
+import { List, ListItem, ListItemText, Drawer, makeStyles } from '@material-ui/core';
+
+export const NAVBARWIDTH = 200;
+const useStyles = makeStyles({
+  nav: {
+    maxWidth: NAVBARWIDTH,
+    width: NAVBARWIDTH,
+  },
+});
 
 export const LeftNavComponent = () => {
   const history = useHistory();
+  const classes = useStyles();
 
   return (
     <Drawer
       open={true}
       variant="permanent"
     >
-      <nav>
+      <nav className={classes.nav}>
         <List>
           <ListItem button>
             <ListItemText primary="Your Menus" onClick={() => history.push('/menus')} />

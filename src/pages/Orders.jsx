@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Grid, CircularProgress, Divider, makeStyles } from '@material-ui/core';
-
-import * as Api from '../common/ApiRequests';
 import { AuthContext } from '../common/AuthContext';
+import * as Api from '../common/ApiRequests';
+import * as Helpers from '../common/Helpers';
 import OrderCategory from './OrderCategory';
 
 const useStyles = makeStyles({
@@ -26,67 +26,20 @@ export const OrdersPageComponent = () => {
   const { user } = useContext(AuthContext);
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeOrders, setActiveOrders] = useState([]);
-  const [confirmedOrders, setConfirmedOrders] = useState([]);
-  const [deletedOrders, setDeletedOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-  const formatDate = (date) => {
-    const newDate = new Date(date);
-    return `${newDate.toLocaleDateString()} ${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}`;
-  };
-  const transformOrders = (orders, menuItems) => (
-    orders.map(order => {
-      order.totalPrice = 0;
-      order.items.forEach(item => {
-        order.totalPrice += menuItems[item.menuItemId].price;
-      });
-      order.created = formatDate(order.dateCreated);
-      return order;
-    })
-  );
-  const fetchAndPrepareOrdersData = async () => {
+  const fetchAndPrepareOrders = async () => {
     setIsLoading(true);
     const orders = await Api.fetchOrders();
     const menuItems = await Api.fetchRestaurantMenuItems(user.restaurant);
-    const menuItemsAsObject = menuItems.reduce((prev, current) => {
-      return {
-        ...prev,
-        [current._id]: current,
-      };
-    }, {});
-    const transformedOrders = transformOrders(orders, menuItemsAsObject);
-    const active = transformedOrders.filter(order => !order.isConfirmed);
-    const confirmed = transformedOrders.filter(order => order.isConfirmed && !order.removed);
-    const deleted = transformedOrders.filter(order => order.removed);
-    setActiveOrders(active);
-    setConfirmedOrders(confirmed);
-    setDeletedOrders(deleted);
+    const transformedOrders = orders.map(order => Helpers.fillOrderData(order, menuItems));
+    setOrders(transformedOrders);
     setIsLoading(false);
-  };
-  const confirmOrder = async (orderToConfirm) => {
-    // TODO: add confirmation modal
-    await Api.confirmOrder(orderToConfirm._id);
-    const newActiveOrders = activeOrders.filter(order => order._id !== orderToConfirm._id);
-    setActiveOrders(newActiveOrders);
-    setConfirmedOrders([
-      ...confirmedOrders,
-      orderToConfirm
-    ]);
-  };
-  const deleteOrder = async (orderToDelete) => {
-    // TODO: add confirmation modal
-    await Api.deleteOrder(orderToDelete._id);
-    const newConfirmedOrders = confirmedOrders.filter(order => order._id !== orderToDelete._id);
-    setConfirmedOrders(newConfirmedOrders);
-    setDeletedOrders([
-      ...deletedOrders,
-      orderToDelete
-    ]);
   };
 
   useEffect(() => {
     if (user) {
-      fetchAndPrepareOrdersData();
+      fetchAndPrepareOrders();
     }
   }, [user]);
 
@@ -94,27 +47,32 @@ export const OrdersPageComponent = () => {
     return (<CircularProgress />);
   }
 
-  if (!isLoading && !activeOrders.length && !confirmedOrders.length && !deletedOrders.length) {
+  if (!isLoading && !orders.length) {
     return (<div>No orders yet</div>);
   }
+
+  const openOrders = orders.filter(order => order.status === 'open');
+  const confirmedOrders = orders.filter(order => order.status === 'confirmed');
+  const archivedOrders = orders.filter(order => order.status === 'archived');
 
   return (
     <Grid container={true} direction="column">
       <Grid container className={classes.order} alignItems="center" justify="center">
-        <Grid item xs={2}>Customer name</Grid>
+        <Grid item xs={1}>Customer name</Grid>
         <Grid item xs={1}>Phone number</Grid>
         <Grid item xs={2}>Address</Grid>
         <Grid item xs={1}>Created</Grid>
+        <Grid item xs={1}>Updated</Grid>
         <Grid item xs={1}>Delivery time</Grid>
         <Grid item xs={1}>Description</Grid>
         <Grid item xs={1}>Items</Grid>
         <Grid item xs={1}>Total</Grid>
-        <Grid item xs={2}>Controls</Grid>
+        <Grid item xs={2}> </Grid>
       </Grid>
       <Divider />
-      <OrderCategory orders={activeOrders} category='active' onConfirm={confirmOrder} onDelete={deleteOrder} />
-      <OrderCategory orders={confirmedOrders} category='confirmed' onConfirm={confirmOrder} onDelete={deleteOrder} />
-      <OrderCategory orders={deletedOrders} category='deleted' onConfirm={confirmOrder} onDelete={deleteOrder} />
+      <OrderCategory orders={openOrders} category='open' />
+      <OrderCategory orders={confirmedOrders} category='confirmed' />
+      <OrderCategory orders={archivedOrders} category='archived' />
     </Grid>
   );
 };

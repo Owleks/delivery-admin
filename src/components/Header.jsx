@@ -1,12 +1,12 @@
-import React, {useContext} from 'react';
-import {Link, useHistory} from 'react-router-dom';
-import {Grid, Button, AppBar, Toolbar} from '@material-ui/core';
+import React, { useContext } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import { Grid, Button, AppBar, Toolbar } from '@material-ui/core';
 
 import {AuthContext} from '../common/AuthContext';
 
 export const HeaderComponent = () => {
     const history = useHistory();
-    const {user} = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
 
     const login = () => {
         history.push('/login');
@@ -14,10 +14,6 @@ export const HeaderComponent = () => {
 
     const signup = () => {
         history.push('/signup');
-    };
-
-    const logout = () => {
-        alert('todo');
     };
 
     return (

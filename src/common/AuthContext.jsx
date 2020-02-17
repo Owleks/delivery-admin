@@ -55,6 +55,17 @@ export default class AuthContextComponent extends React.Component {
         }
     };
 
+    logout = () => {
+        this.setState({
+            accessToken: null,
+            isLoggedIn: false,
+            user: null,
+        });
+
+        setAuthToken(null);
+        localStorage.setItem('accessToken', null);
+    };
+
     signup = async (restaurantDomain, restaurantName, login, password) => {
         try {
             const response = await apiClient.post(
@@ -85,6 +96,7 @@ export default class AuthContextComponent extends React.Component {
         const contextDataAndActions = {
             ...this.state,
             login: this.login,
+            logout: this.logout,
             signup: this.signup,
         };
 

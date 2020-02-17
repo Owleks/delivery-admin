@@ -1,8 +1,9 @@
 import axios from 'axios';
+import {ENVIRONMENT} from '../environments/environment';
 
 
 export const apiClient = axios.create({
-    baseURL: 'http://api.besmart.link:3000',
+    baseURL: ENVIRONMENT.API
 });
 
 export const setAuthToken = (token) => {

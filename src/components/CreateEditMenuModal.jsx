@@ -1,41 +1,32 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, {memo, useState} from 'react';
 import {
   Dialog, DialogTitle, Grid, TextField, Button, CircularProgress, Box, DialogContent, DialogActions,
 } from '@material-ui/core';
 
+import {useForm} from 'react-hook-form';
+
 import * as Api from '../common/ApiRequests';
 
 export const CreateEditMenuModal = memo((props) => {
-  const { isOpen, onClose, onSubmit, menuToUpdate } = props;
+  const {isOpen, onClose, onSubmit, menuToUpdate} = props;
   const [inProgress, setInProgress] = useState(false);
-  const [menuName, setMenuName] = useState('');
+  const {register, handleSubmit, errors} = useForm();
 
-  const handleOnSubmit = async () => {
+  const handleOnSubmit = async (form) => {
+    const {menuName, menuImg} = form;
+    const menuForm = new FormData();
+    menuForm.append('name', menuName);
+    menuForm.append('img', menuImg[0]);
     setInProgress(true);
     if (!menuToUpdate) {
-      await Api.createMenu({ name: menuName });
+      await Api.createMenu(menuForm);
     } else {
-      await Api.updateMenu({
-        ...menuToUpdate,
-        name: menuName,
-      });
+      menuForm.append('_id', menuToUpdate._id);
+      await Api.updateMenu(menuForm);
     }
     setInProgress(false);
     onSubmit();
   };
-
-  const onNameChange = (e) => {
-    const name = e.target.value;
-    setMenuName(name);
-  };
-
-  useEffect(() => {
-    if (menuToUpdate) {
-      setMenuName(menuToUpdate.name);
-    } else {
-      setMenuName('');
-    }
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
@@ -43,7 +34,28 @@ export const CreateEditMenuModal = memo((props) => {
       <DialogContent>
         <form noValidate autoComplete="off">
           <Grid item>
-            <TextField label="Menu Name" value={menuName} onChange={onNameChange} autoFocus />
+            <TextField name="menuName"
+                       value={menuToUpdate?.name}
+                       inputRef={register({
+                         required: 'Menu name is required'
+                       })}
+                       helperText={errors.menuName?.message}
+                       error={!!errors.menuName}
+                       required
+                       label="Menu name:"
+                       autoFocus />
+          </Grid>
+          <Box mt={2} />
+          <Grid item>
+            <TextField type="file"
+                       name="menuImg"
+                       label="Menu image:"
+                       InputLabelProps={{shrink: true}}
+                       required
+                       helperText={errors.menuImg?.message}
+                       error={!!errors.menuImg}
+                       inputRef={register({required: 'Menu image is required'})}
+            />
           </Grid>
           <Box mt={3} />
         </form>
@@ -53,7 +65,7 @@ export const CreateEditMenuModal = memo((props) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={handleOnSubmit}
+          onClick={handleSubmit(handleOnSubmit)}
         >
           {menuToUpdate ? 'Update' : 'Create'}
         </Button>

@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { Grid, Button, Divider, makeStyles } from '@material-ui/core';
+import React, {useEffect, useState, useContext} from 'react';
+import {Link} from 'react-router-dom';
+import {Grid, Button, Divider, makeStyles} from '@material-ui/core';
 
-import { AuthContext } from '../common/AuthContext';
+import {AuthContext} from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
-import { CreateEditMenuModal } from '../components/CreateEditMenuModal';
+import {CreateEditMenuModal} from '../components/CreateEditMenuModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import {ENVIRONMENT} from '../environments/environment';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -27,10 +28,14 @@ const useStyles = makeStyles(theme => ({
   control: {
     marginRight: theme.spacing(2),
   },
+  image: {
+    width: 100,
+    height: 100
+  }
 }));
 
 export const MenusPageComponent = () => {
-  const { user } = useContext(AuthContext);
+  const {user} = useContext(AuthContext);
   const [menus, setMenus] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
@@ -42,7 +47,7 @@ export const MenusPageComponent = () => {
 
   const fetchMenus = async () => {
     setIsLoading(true);
-    const menus = await Api.fetchMenus({ restaurant: user.restaurant });
+    const menus = await Api.fetchMenus({restaurant: user.restaurant});
     setMenus(menus);
     setIsLoading(false);
   };
@@ -93,14 +98,20 @@ export const MenusPageComponent = () => {
       {showMenus && <Grid item={true} container={true} direction="column" className={classes.root}>
         <Divider />
         {menus.map((menu) => (
-          <Grid item={true} key={menu._id}>
-            <Grid container item>
+          <>
+            <Grid container item={true} key={menu._id}>
               <Link to={`/menus/${menu._id}`} className={classes.name}>
-                <Grid item>
-                  {menu.name}
+                <Grid container item>
+                  <Grid item xs={6}>
+                    <img className={classes.image}
+                         src={ENVIRONMENT.UPLOADS + menu.image} />
+                  </Grid>
+                  <Grid container alignItems="center" justify="center" item xs={6}>
+                    {menu.name}
+                  </Grid>
                 </Grid>
               </Link>
-              <Grid item className={classes.controls}>
+              <Grid container xs={4} item className={classes.controls}>
                 <Button variant="contained" className={classes.control} onClick={() => {
                   handleOnDeleteMenu(menu);
                 }}>Remove</Button>
@@ -110,7 +121,7 @@ export const MenusPageComponent = () => {
               </Grid>
             </Grid>
             <Grid item><Divider /></Grid>
-          </Grid>
+          </>
         ))}
       </Grid>}
       {showNoMenus && <div>No menus :/ </div>}

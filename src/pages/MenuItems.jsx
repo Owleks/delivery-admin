@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import { Box, Grid, Button, makeStyles, Divider, CircularProgress } from '@material-ui/core';
+import React, {useEffect, useState, useContext} from 'react';
+import {useParams} from 'react-router-dom';
+import {Box, Grid, Button, makeStyles, Divider, CircularProgress} from '@material-ui/core';
 
-import { AuthContext } from '../common/AuthContext';
+import {AuthContext} from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
 import CreateEditMenuItemModal from '../components/CreateEditMenuItemModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import {ENVIRONMENT} from '../environments/environment';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -27,13 +28,17 @@ const useStyles = makeStyles(theme => ({
   control: {
     marginRight: theme.spacing(2),
   },
+  image: {
+    width: 100,
+    height: 100
+  }
 }));
 
 export const MenuItemsPageComponent = () => {
 
   const classes = useStyles();
-  const { user } = useContext(AuthContext);
-  const { menuId } = useParams();
+  const {user} = useContext(AuthContext);
+  const {menuId} = useParams();
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateEditMenuItemOpened, setIsCreateEditMenuItemOpened] = useState(false);
@@ -56,7 +61,7 @@ export const MenuItemsPageComponent = () => {
     setIsLoading(false);
     setMenuItems(menuItems);
   };
-  const handleOnDeleteMenuItem =  (itemToDelete) => {
+  const handleOnDeleteMenuItem = (itemToDelete) => {
     setItemToDelete(itemToDelete);
     setIsConfirmationModalOpen(true);
     setDeleteMessage(`Are you sure you want to delete ${itemToDelete.name}?`);
@@ -82,8 +87,14 @@ export const MenuItemsPageComponent = () => {
   const menuItemsElements = menuItems.map(item => (
     <Grid item key={item._id}>
       <Grid container direction="row" className={classes.menuItem} item>
-        <Grid item className={classes.name}>{item.name}</Grid>
-        <Grid item>
+        <Grid item xs={4}>
+          <img className={classes.image}
+               src={ENVIRONMENT.UPLOADS + item.image} />
+        </Grid>
+        <Grid container alignItems="center" justify="center" item xs={4}>
+          {item.name}
+        </Grid>
+        <Grid item container alignItems="center" justify="center" xs={4}>
           <Button
             variant="contained"
             className={classes.control}
@@ -114,6 +125,9 @@ export const MenuItemsPageComponent = () => {
         {isLoading && (<Box><CircularProgress /></Box>)}
         {!isLoading && (
           <>
+            <Grid item={true}>
+              <header><b>Your menu items</b></header>
+            </Grid>
             <Grid container={true} direction="column" className={classes.menuItemsContainer}>
               <Grid item><Divider /></Grid>
               {menuItemsElements}

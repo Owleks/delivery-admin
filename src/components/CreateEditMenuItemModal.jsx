@@ -1,116 +1,118 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useParams} from 'react-router-dom';
 import {
-    Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, CircularProgress, Box, makeStyles,
+  Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, CircularProgress, Box, makeStyles, Grid,
 } from "@material-ui/core";
 import * as Api from '../common/ApiRequests';
+import {useForm} from 'react-hook-form';
 
 const useStyles = makeStyles({
-    centered: {
-        position: 'absolute',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-    },
+  centered: {
+    position: 'absolute',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
 });
 
 const CreateEditMenuItemModal = (props) => {
-    const classes = useStyles();
-    const {itemToUpdate, isOpen, onClose, onSubmit} = props;
-    const {menuId} = useParams();
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
-    const [description, setDescription] = useState('');
-    const [inProgress, setInProgress] = useState(false);
+  const classes = useStyles();
+  const {itemToUpdate, isOpen, onClose, onSubmit} = props;
+  const {menuId} = useParams();
+  const {register, handleSubmit, errors} = useForm();
+  const [inProgress, setInProgress] = useState(false);
 
-    const handleSubmit = async () => {
-        setInProgress(true);
-        if (!name || !price || !description) // TODO: show error
-            return;
-        if(!itemToUpdate)
-            await Api.createMenuItem({menuId, name, price, description});
-        else
-            await Api.updateMenuItem({
-                ...itemToUpdate,
-                name,
-                price,
-                description
-            });
-        setInProgress(false);
-        onSubmit();
-    };
-    const handleNameChange = ({target: {value: name}}) => {
-        setName(name);
-    };
-    const handlePriceChange = ({target: {value: price}}) => {
-        setPrice(price);
-    };
-    const handleDescriptionChange = ({target: {value: description}}) => {
-        setDescription(description);
-    };
-    useEffect(() => {
-        if(itemToUpdate) {
-            setName(itemToUpdate.name);
-            setPrice(itemToUpdate.price);
-            setDescription(itemToUpdate.description)
-        } else {
-            setName('');
-            setPrice('');
-            setDescription('');
-        }
-    }, [isOpen]);
+  const submit = async ({description, name, price, menuItemImg}) => {
 
-    return (
-        <>
-            <Dialog open={isOpen} onClose={onClose}>
-                <DialogTitle>{!itemToUpdate ? "Create" : "Edit"} menu item</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        required
-                        margin="dense"
-                        label="Name"
-                        type="text"
-                        value={name}
-                        onChange={handleNameChange}
-                        fullWidth
-                    />
-                    <TextField
-                        required
-                        margin="dense"
-                        label="Price"
-                        type="number"
-                        value={price}
-                        onChange={handlePriceChange}
-                        fullWidth
-                    />
-                    <TextField
-                        required
-                        margin="dense"
-                        label="Description"
-                        type="text"
-                        value={description}
-                        onChange={handleDescriptionChange}
-                        fullWidth
-                    />
-                    {inProgress && <Box className={classes.centered}><CircularProgress /></Box>}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmit}
-                    >
-                        {!itemToUpdate ? "Create item" : "Edit item"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    );
+    const menuItemForm = new FormData();
+    menuItemForm.append('name', name);
+    menuItemForm.append('description', description);
+    menuItemForm.append('price', price);
+    menuItemForm.append('img', menuItemImg[0]);
+    menuItemForm.append('menuId', menuId);
+    setInProgress(true);
+    if (!itemToUpdate) {
+      await Api.createMenuItem(menuItemForm);
+    } else {
+      menuItemForm.append('_id', itemToUpdate._id);
+      await Api.updateMenuItem(menuItemForm);
+    }
+
+    setInProgress(false);
+    onSubmit();
+  };
+
+  return (
+    <>
+      <Dialog open={isOpen} onClose={onClose}>
+        <DialogTitle>{!itemToUpdate ? "Create" : "Edit"} menu item</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            label="Name"
+            value={itemToUpdate?.name}
+            inputRef={register({required: 'Name is required'})}
+            helperText={errors.name?.message}
+            error={!!errors.name}
+            name="name"
+            type="text"
+            fullWidth
+          />
+          <TextField
+            required
+            margin="dense"
+            label="Price"
+            value={itemToUpdate?.price}
+            helperText={errors.price?.message}
+            error={!!errors.price}
+            inputRef={register({required: 'Price is required'})}
+            name="price"
+            type="number"
+            fullWidth
+          />
+          <TextField
+            helperText={errors.descriptio?.message}
+            error={!!errors.description}
+            value={itemToUpdate?.description}
+            inputRef={register({required: 'Description is required'})}
+            name="description"
+            required
+            margin="dense"
+            label="Description"
+            type="text"
+            fullWidth
+          />
+          <TextField type="file"
+                     name="menuItemImg"
+                     label="Menu item image:"
+                     InputLabelProps={{shrink: true}}
+                     required
+                     fullWidth
+                     helperText={errors.menuItemImg?.message}
+                     error={!!errors.menuItemImg}
+                     inputRef={register({required: 'Menu image is required'})}
+          />
+          <Box mt={3} />
+          {inProgress && <Box className={classes.centered}><CircularProgress /></Box>}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit(submit)}
+          >
+            {!itemToUpdate ? "Create item" : "Edit item"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
 };
 
 export default CreateEditMenuItemModal;

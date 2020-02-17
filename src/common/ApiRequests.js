@@ -13,7 +13,7 @@ export const createMenu = async (menu) => {
 };
 
 export const updateMenu = async (menu) => {
-  const response = await apiClient.put(`/menu/${menu._id}`, menu); // TODO: error handling
+  const response = await apiClient.put(`/menu/${menu.get('_id')}`, menu); // TODO: error handling
   return response.data;
 };
 
@@ -60,7 +60,7 @@ export const createMenuItem = async (item) => {
 };
 
 export const updateMenuItem = async (item) => {
-  const response = await apiClient.put(`/menu-item/${item._id}`, item); // TODO: error handling
+  const response = await apiClient.put(`/menu-item/${item.get('_id')}`, item); // TODO: error handling
   return response.data;
 };
 

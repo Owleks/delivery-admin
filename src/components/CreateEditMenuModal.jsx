@@ -37,7 +37,7 @@ export const CreateEditMenuModal = memo((props) => {
         <form noValidate autoComplete="off">
           <Grid item>
             <TextField name="menuName"
-                       value={menuToUpdate?.name}
+                       defaultValue={menuToUpdate?.name}
                        inputRef={register({
                          required: 'Menu name is required'
                        })}

@@ -56,7 +56,7 @@ const CreateEditMenuItemModal = (props) => {
             required
             margin="dense"
             label="Name"
-            value={itemToUpdate?.name}
+            defaultValue={itemToUpdate?.name}
             inputRef={register({required: 'Name is required'})}
             helperText={errors.name?.message}
             error={!!errors.name}
@@ -68,7 +68,7 @@ const CreateEditMenuItemModal = (props) => {
             required
             margin="dense"
             label="Price"
-            value={itemToUpdate?.price}
+            defaultValue={itemToUpdate?.price}
             helperText={errors.price?.message}
             error={!!errors.price}
             inputRef={register({required: 'Price is required'})}
@@ -79,7 +79,7 @@ const CreateEditMenuItemModal = (props) => {
           <TextField
             helperText={errors.descriptio?.message}
             error={!!errors.description}
-            value={itemToUpdate?.description}
+            defaultValue={itemToUpdate?.description}
             inputRef={register({required: 'Description is required'})}
             name="description"
             required
@@ -93,11 +93,10 @@ const CreateEditMenuItemModal = (props) => {
                      name="menuItemImg"
                      label="Menu item image:"
                      InputLabelProps={{shrink: true}}
-                     required
                      fullWidth
                      helperText={errors.menuItemImg?.message}
                      error={!!errors.menuItemImg}
-                     inputRef={register({required: 'Menu image is required'})}
+                     inputRef={register()}
           />
           <Box mt={3} />
           {inProgress && <Box className={classes.centered}><CircularProgress /></Box>}

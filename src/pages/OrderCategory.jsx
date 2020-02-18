@@ -53,7 +53,7 @@ const OrderCategory = (props) => {
             <Grid item xs={1}>{order.updated}</Grid>
             <Grid item xs={1}>{order.deliveryTime}</Grid>
             <Grid item xs={1}>{order.description}</Grid>
-            <Grid item xs={1}>{order.items.length}</Grid>
+            <Grid item xs={1}>{order.totalItemsCount}</Grid>
             <Grid item xs={1}>{order.totalPrice} UAH</Grid>
             <Grid item xs={1} className={classes.capitalize}>{order.status}</Grid>
             <Grid item xs={2}>

@@ -8,9 +8,11 @@ export const formatDate = (date) => {
 export const fillOrderData = (order, menuItems) => {
   order = {...order};
   order.totalPrice = 0;
+  order.totalItemsCount = 0;
   order.items.forEach(item => {
     const { price } = menuItems[item.menuItemId];
-    order.totalPrice += price;
+    order.totalPrice += price * item.count;
+    order.totalItemsCount += item.count;
   });
   order.created = formatDate(order.dateCreated);
   order.updated = formatDate(order.dateUpdated);

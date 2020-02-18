@@ -17,7 +17,7 @@ export const fillOrderData = (order, menuItems) => {
   return order;
 };
 
-export const fillOrderItemsData = (orderItems, menuItems) => { // TODO: remove after API will return menu items info
+export const fillOrderItemsData = (orderItems, menuItems) => {
   orderItems = [...orderItems];
   return orderItems.map(item => {
     const { name, price, description, menuId } = menuItems[item.menuItemId];

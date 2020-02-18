@@ -8,12 +8,12 @@ import {useForm} from 'react-hook-form';
 import * as Api from '../common/ApiRequests';
 
 export const CreateEditMenuModal = memo((props) => {
-  const {isOpen, onClose, onSubmit, menuToUpdate} = props;
+  const { isOpen, onClose, onSubmit, menuToUpdate } = props;
   const [inProgress, setInProgress] = useState(false);
-  const {register, handleSubmit, errors} = useForm();
+  const { register, handleSubmit, errors } = useForm();
 
   const handleOnSubmit = async (form) => {
-    const {menuName, menuImg} = form;
+    const { menuName, menuImg } = form;
     const menuForm = new FormData();
     menuForm.append('name', menuName);
     menuForm.append('img', menuImg[0]);
@@ -52,11 +52,14 @@ export const CreateEditMenuModal = memo((props) => {
             <TextField type="file"
                        name="menuImg"
                        label="Menu image:"
-                       InputLabelProps={{shrink: true}}
+                       InputLabelProps={{ shrink: true }}
                        required
                        helperText={errors.menuImg?.message}
                        error={!!errors.menuImg}
-                       inputRef={register({required: 'Menu image is required'})}
+                       inputProps={{
+                         accept: "image/*"
+                       }}
+                       inputRef={register({ required: 'Menu image is required' })}
             />
           </Grid>
           <Box mt={3} />

@@ -89,6 +89,7 @@ const CreateEditMenuItemModal = (props) => {
             fullWidth
           />
           <TextField type="file"
+                     accept="image/*"
                      name="menuItemImg"
                      label="Menu item image:"
                      InputLabelProps={{shrink: true}}

@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { makeStyles, CircularProgress, Grid, Box, Button } from '@material-ui/core';
+import { makeStyles, CircularProgress, Grid, Box, Button, Select, MenuItem } from '@material-ui/core';
 import { AuthContext } from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
 import * as Helpers from '../common/Helpers';
@@ -12,28 +12,28 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  orderInfo: {
+  info: {
     height: 'auto',
-    minHeight: 50,
+    minHeight: 65,
     borderBottom: `1px solid ${theme.palette.divider}`,
     '&:first-child': {
       borderTop: `1px solid ${theme.palette.divider}`,
     },
-    '& div': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    '& div:nth-child(2)': {
-      justifyContent: 'start',
-      borderLeft: `1px solid ${theme.palette.divider}`,
-      padding: theme.spacing(2),
-    },
   },
-  description: {
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRight: `1px solid ${theme.palette.divider}`,
+  },
+  value: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'start',
+    padding: theme.spacing(2),
     textAlign: 'start',
   },
-  orderStatus: {
+  capitalize: {
     textTransform: 'capitalize',
   },
   controls: {
@@ -42,11 +42,15 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
     margin: theme.spacing(2, 0),
-    '& button': {
-      margin: theme.spacing(0, 1),
-    },
+  },
+  statusChangeControls: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
   },
 }));
+
+const ORDER_STATUSES = ['open', 'confirmed', 'preparing', 'picked', 'delivered'];
 
 export const OrderPreviewComponent = () => {
   const { user } = useContext(AuthContext);
@@ -55,112 +59,128 @@ export const OrderPreviewComponent = () => {
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false);
   const [order, setOrder] = useState(undefined);
+  const [orderStatus, setOrderStatus] = useState('');
+  const [isStatusChangeActive, setIsStatusChangeActive] = useState(false);
 
   const goBack = () => {
     history.push('/orders');
   };
-
-  const changeOrderStatus = async (status) => {
-    // TODO: add confirmation
-    // setIsLoading(true); // TODO: add isUpdating (isLoading will cause blink)
-    const newOrder = await Api.changeOrderStatus(order._id, status);
-    setOrder(newOrder);
-    // setIsLoading(false);
+  const handleStatusChange = async (e) => {
+    setOrderStatus(e.target.value);
   };
-
-  const fetchOrderInformation = async (orderId) => {
+  const changeOrderStatus = async (status) => {
+    setIsLoading(true);
+    const newOrder = await Api.changeOrderStatus(order._id, status);
+    setOrderStatus(newOrder.status);
+    setIsStatusChangeActive(false);
+    setIsLoading(false);
+  };
+  const cancelStatusChange = () => {
+    setOrderStatus(order.status);
+    setIsStatusChangeActive(false);
+  };
+  const fetchOrderInformation = useCallback(async (orderId) => {
     setIsLoading(true);
     const order = await Api.fetchOrder(orderId);
     const menuItems = await Api.fetchRestaurantMenuItems(user.restaurant);
     const transformedOrder = Helpers.fillOrderData(order, menuItems);
     transformedOrder.items = Helpers.fillOrderItemsData(transformedOrder.items, menuItems);
     setOrder(transformedOrder);
+    setOrderStatus(transformedOrder.status);
     setIsLoading(false);
-  };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
       fetchOrderInformation(orderId);
     }
-  }, [user]);
+  }, [user, orderId, fetchOrderInformation]);
 
   if (isLoading) {
     return <CircularProgress />;
   }
-
   if (!isLoading && !order) {
     return <>Order not found</>;
   }
 
-  const controls = ( // TODO: change to back button, set state input and save button
-    <>
-      <Box className={classes.controls}>
-        <Button variant="contained" onClick={() => goBack()}>Back</Button>
-        {order.status === 'open' && <>
-          <Button variant="contained" onClick={() => changeOrderStatus('archived')}>Archive order</Button>
-          <Button variant="contained" onClick={() => changeOrderStatus('confirmed')} color="primary">Confirm order</Button>
-        </>}
-        {order.status === 'confirmed' && <>
-          <Button variant="contained" onClick={() => changeOrderStatus('open')}>Re-open order</Button>
-          <Button variant="contained" onClick={() => changeOrderStatus('archived')} color="primary">Archive order</Button>
-        </>}
-        {order.status === 'archived' && <>
-          <Button variant="contained" onClick={() => changeOrderStatus('open')} color="primary">Re-open order</Button>
-        </>}
-      </Box>
-    </>
-  );
+  const statusValueBlock = (<>
+    {!isStatusChangeActive && (<>
+      <Grid item xs={7} className={classes.value}>
+        <Box className={classes.capitalize}><b>{orderStatus}</b></Box>
+      </Grid>
+      <Grid item xs={3} className={classes.statusChangeControls}>
+        <Button variant="contained" color="primary" onClick={() => setIsStatusChangeActive(true)}>Change</Button>
+      </Grid>
+    </>)}
+    {isStatusChangeActive && (<>
+      <Grid item xs={7} className={classes.value}>
+        <Select value={orderStatus} onChange={handleStatusChange} className={classes.capitalize}>
+          {ORDER_STATUSES.map(status => (
+            <MenuItem key={status} value={status} disabled={orderStatus === status} className={classes.capitalize}>
+              {status}
+            </MenuItem>
+          ))}
+        </Select>
+      </Grid>
+      <Grid item xs={3} className={classes.statusChangeControls}>
+        <Button variant="contained" onClick={cancelStatusChange}>Cancel</Button>
+        <Button variant="contained" onClick={() => changeOrderStatus(orderStatus)} color="primary">Save</Button>
+      </Grid>
+    </>)}
+  </>);
 
   return (
     <>
       <Box className={classes.header}><b>Order preview</b></Box>
       <Grid container direction="column">
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Order ID:</b></Grid>
-          <Grid item xs={10}>{order._id}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Order ID:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order._id}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Order status:</b></Grid>
-          <Grid item xs={10} className={classes.orderStatus}><b>{order.status}</b></Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Order status:</b></Grid>
+          {statusValueBlock}
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Customer name:</b></Grid>
-          <Grid item xs={10}>{order.customerName}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Customer name:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.customerName}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Phone:</b></Grid>
-          <Grid item xs={10}>{order.phoneNumber}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Phone:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.phoneNumber}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Address:</b></Grid>
-          <Grid item xs={10}>{order.address}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Address:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.address}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Created:</b></Grid>
-          <Grid item xs={10}>{order.created}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Created:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.created}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Updated:</b></Grid>
-          <Grid item xs={10}>{order.updated}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Updated:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.updated}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Delivery time:</b></Grid>
-          <Grid item xs={10}>{order.deliveryTime}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Delivery time:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.deliveryTime}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Description:</b></Grid>
-          <Grid item xs={10} className={classes.description}>{order.description}</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Description:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.description}</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Items:</b></Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Items:</b></Grid>
           <Grid item xs={10}>// TODO: add items component here</Grid>
         </Grid>
-        <Grid container item className={classes.orderInfo}>
-          <Grid item xs={2}><b>Total:</b></Grid>
-          <Grid item xs={10}>{order.totalPrice} UAH</Grid>
+        <Grid container item className={classes.info}>
+          <Grid item xs={2} className={classes.title}><b>Total:</b></Grid>
+          <Grid item xs={10} className={classes.value}>{order.totalPrice} UAH</Grid>
         </Grid>
       </Grid>
-      {controls}
+      <Box className={classes.controls}>
+        <Button variant="contained" onClick={() => goBack()}>Back</Button>
+      </Box>
     </>
   );
 };

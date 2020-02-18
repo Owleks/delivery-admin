@@ -98,8 +98,8 @@ export const MenusPageComponent = () => {
       {showMenus && <Grid item={true} container={true} direction="column" className={classes.root}>
         <Divider />
         {menus.map((menu) => (
-          <>
-            <Grid container item={true} key={menu._id}>
+          <Grid container item key={menu._id} direction="column">
+            <Grid container item>
               <Link to={`/menus/${menu._id}`} className={classes.name}>
                 <Grid container item>
                   <Grid item xs={6}>
@@ -121,7 +121,7 @@ export const MenusPageComponent = () => {
               </Grid>
             </Grid>
             <Grid item><Divider /></Grid>
-          </>
+          </Grid>
         ))}
       </Grid>}
       {showNoMenus && <div>No menus :/ </div>}

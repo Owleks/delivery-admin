@@ -43,7 +43,7 @@ export const changeOrderStatus = async (orderId, status) => {
 };
 
 export const fetchRestaurantMenuItems = async (restaurantId) => {
-  const response = await apiClient.get('/menu-item', { params: { restaurantId } }); // TODO: error handling
+  const response = await apiClient.get('/menu-item', { params: { restaurantId, all: true } }); // TODO: error handling
   return response.data.reduce((prev, current) => ({
     ...prev,
     [current._id]: current,

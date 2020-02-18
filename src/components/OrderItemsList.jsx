@@ -11,6 +11,9 @@ const useStyles = makeStyles(theme => ({
       marginBottom: theme.spacing(1),
     },
   },
+  removed: {
+    filter: 'grayscale(1)',
+  },
   content: {
     padding: theme.spacing(2),
   },
@@ -25,7 +28,7 @@ export const OrderItemsListComponent = memo(({ items }) => {
   return (
     <Grid container direction="row">
       {items.map(item => (
-        <Card key={item._id} className={classes.item}>
+        <Card key={item._id} className={`${classes.item} ${item.removed && classes.removed}`}>
           <Grid container>
             <Grid item xs={4}>
               <CardMedia className={classes.image} image={ENVIRONMENT.UPLOADS + item.image} title={item.name} />
@@ -34,6 +37,7 @@ export const OrderItemsListComponent = memo(({ items }) => {
               <Grid container item><Typography variant="h5">{item.name} ({item.count})</Typography></Grid>
               <Grid container item><Typography variant="body1">{item.description}</Typography></Grid>
               <Grid container item><Typography variant="body2">{item.price} UAH</Typography></Grid>
+              {item.removed && <Grid container item><Typography variant="h6"><b>Removed from menu</b></Typography></Grid>}
             </Grid>
           </Grid>
         </Card>

@@ -20,13 +20,14 @@ export const fillOrderData = (order, menuItems) => {
 export const fillOrderItemsData = (orderItems, menuItems) => {
   orderItems = [...orderItems];
   return orderItems.map(item => {
-    const { name, price, description, menuId } = menuItems[item.menuItemId];
+    const { name, price, description, menuId, image } = menuItems[item.menuItemId];
     return {
       ...item,
       name,
       price,
       description,
-      menuId
+      menuId,
+      image
     };
   });
 };

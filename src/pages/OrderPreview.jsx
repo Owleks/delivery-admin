@@ -1,9 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { makeStyles, CircularProgress, Grid, Box, Button, Select, MenuItem } from '@material-ui/core';
-import { AuthContext } from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
 import * as Helpers from '../common/Helpers';
+import { AuthContext } from '../common/AuthContext';
+import { OrderItemsListComponent } from '../components/OrderItemsList';
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -171,7 +172,7 @@ export const OrderPreviewComponent = () => {
         </Grid>
         <Grid container item className={classes.info}>
           <Grid item xs={2} className={classes.title}><b>Items:</b></Grid>
-          <Grid item xs={10}>// TODO: add items component here</Grid>
+          <Grid item xs={10}><OrderItemsListComponent items={order.items} /></Grid>
         </Grid>
         <Grid container item className={classes.info}>
           <Grid item xs={2} className={classes.title}><b>Total:</b></Grid>

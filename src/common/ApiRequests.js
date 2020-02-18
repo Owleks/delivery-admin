@@ -38,7 +38,7 @@ export const fetchOrder = async (orderId) => {
 };
 
 export const changeOrderStatus = async (orderId, status) => {
-  const response = await apiClient.put(`/order/${orderId}`, {status}); //TODO: error handling
+  const response = await apiClient.put(`/order/${orderId}`, { status }); //TODO: error handling
   return response.data;
 };
 
@@ -70,4 +70,14 @@ export const updateMenuItem = async (item) => {
 export const deleteMenuItem = async (itemId) => {
   const response = await apiClient.delete(`/menu-item/${itemId}`); // TODO: error handling
   return response.data;
+};
+
+export const fetchRestaurant = async (restaurantId) => {
+  const response = await apiClient.get('/restaurant', { params: { restaurantId } }); // TODO: error handling
+  return response.data
+};
+
+export const updateRestaurant = async (restaurantId, params) => {
+  const response = await apiClient.put(`/restaurant/${restaurantId}`,  params); // TODO: error handling
+  return response.data
 };

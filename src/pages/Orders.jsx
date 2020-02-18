@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Grid, CircularProgress, Divider, makeStyles } from '@material-ui/core';
+import { Grid, CircularProgress, makeStyles } from '@material-ui/core';
 import { AuthContext } from '../common/AuthContext';
 import * as Api from '../common/ApiRequests';
 import * as Helpers from '../common/Helpers';
@@ -51,28 +51,26 @@ export const OrdersPageComponent = () => {
     return (<div>No orders yet</div>);
   }
 
-  const openOrders = orders.filter(order => order.status === 'open');
-  const confirmedOrders = orders.filter(order => order.status === 'confirmed');
-  const archivedOrders = orders.filter(order => order.status === 'archived');
+  const openOrders = orders.filter(order => ['open', 'confirmed', 'preparing', 'picked'].indexOf(order.status) > -1);
+  const pastOrders = orders.filter(order => order.status === 'delivered');
 
   return (
     <Grid container={true} direction="column">
       <Grid container className={classes.order} alignItems="center" justify="center">
         <Grid item xs={1}>Customer name</Grid>
         <Grid item xs={1}>Phone number</Grid>
-        <Grid item xs={2}>Address</Grid>
+        <Grid item xs={1}>Address</Grid>
         <Grid item xs={1}>Created</Grid>
         <Grid item xs={1}>Updated</Grid>
         <Grid item xs={1}>Delivery time</Grid>
         <Grid item xs={1}>Description</Grid>
         <Grid item xs={1}>Items</Grid>
         <Grid item xs={1}>Total</Grid>
+        <Grid item xs={1}>Status</Grid>
         <Grid item xs={2}> </Grid>
       </Grid>
-      <Divider />
       <OrderCategory orders={openOrders} category='open' />
-      <OrderCategory orders={confirmedOrders} category='confirmed' />
-      <OrderCategory orders={archivedOrders} category='archived' />
+      <OrderCategory orders={pastOrders} category='past' />
     </Grid>
   );
 };

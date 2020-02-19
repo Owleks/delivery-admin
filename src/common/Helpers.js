@@ -16,6 +16,7 @@ export const fillOrderData = (order, menuItems) => {
   });
   order.created = formatDate(order.dateCreated);
   order.updated = formatDate(order.dateUpdated);
+  order.deliveryTime = formatDate(order.deliveryTime);
   return order;
 };
 

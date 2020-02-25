@@ -54,6 +54,7 @@ const CreateEditMenuItemModal = (props) => {
           <TextField
             autoFocus
             required
+            autoComplete="off"
             margin="dense"
             label="Name"
             defaultValue={itemToUpdate?.name}
@@ -66,6 +67,7 @@ const CreateEditMenuItemModal = (props) => {
           />
           <TextField
             required
+            autoComplete="off"
             margin="dense"
             label="Price"
             defaultValue={itemToUpdate?.price}
@@ -77,6 +79,7 @@ const CreateEditMenuItemModal = (props) => {
             fullWidth
           />
           <TextField
+            autoComplete="off"
             helperText={errors.descriptio?.message}
             error={!!errors.description}
             defaultValue={itemToUpdate?.description}
